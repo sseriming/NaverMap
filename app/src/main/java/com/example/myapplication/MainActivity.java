@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
@@ -8,9 +9,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.Checkable;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -19,17 +17,20 @@ import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
+import com.naver.maps.map.overlay.Marker;
+import com.naver.maps.map.overlay.PolygonOverlay;
+import com.naver.maps.map.overlay.PolylineOverlay;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     Spinner maptype_spinner;
     NaverMap mMap;
-    CheckBox checkBoxLayer;
-    Button btnNaverAddr;
-    NaverAddrApi naverAddrApi;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +54,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull @org.jetbrains.annotations.NotNull NaverMap naverMap) {
         mMap = naverMap;
+        Marker marker = new Marker();
+        marker.setPosition(new LatLng(35.9462369805542, 126.68215506925468));
+        marker.setMap(naverMap);
 
+        Marker marker2 = new Marker();
+        marker2.setPosition(new LatLng(35.9674211, 126.7364801));
+        marker2.setMap(naverMap);
 
+        Marker marker3 = new Marker();
+        marker3.setPosition(new LatLng(35.97627792560719, 126.62464725845604));
+        marker3.setMap(naverMap);
 
+        PolygonOverlay polygon = new PolygonOverlay();
+        polygon.setCoords(Arrays.asList(
+                new LatLng(35.9462369805542, 126.68215506925468),
+                new LatLng(35.9674211, 126.7364801),
+                new LatLng(35.97627792560719, 126.62464725845604)
+
+        ));
+
+        polygon.setMap(naverMap);
+        polygon.setColor(Color.RED);
+        polygon.
 
 
         mMap.setOnMapClickListener((point, coord) ->
@@ -92,16 +113,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.map_type, R.layout.custom_spinner_item);
         adapter.setDropDownViewResource(R.layout.custom_spinner_item_click);
         maptype_spinner.setAdapter(adapter);
-        checkBoxLayer = findViewById(R.id.checkBoxLayer);
-        btnNaverAddr = findViewById(R.id.btnNaverAddr);
 
-        btnNaverAddr.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                naverAddrApi = new NaverAddrApi();
-                naverAddrApi.execute(new LatLng(35.9462369805542, 126.68215506925468));
-            }
-        });
 
     }
 }
