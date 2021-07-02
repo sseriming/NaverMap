@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         polygon.setMap(naverMap);
         polygon.setColor(Color.RED);
-        polygon.
+
 
 
         mMap.setOnMapClickListener((point, coord) ->
