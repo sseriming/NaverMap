@@ -10,10 +10,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.CameraUpdate;
+import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
@@ -22,6 +24,11 @@ import com.naver.maps.map.overlay.PolygonOverlay;
 import com.naver.maps.map.overlay.PolylineOverlay;
 
 import org.jetbrains.annotations.NotNull;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Executor;
 
 import java.util.Arrays;
 
@@ -30,7 +37,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     Spinner maptype_spinner;
     NaverMap mMap;
+    PolygonOverlay mPolygon;
+    ArrayList<Marker> mMarkerArrayLIst;
+    ArrayList<LatLng> mLatLngList;
 
+    Button btnTest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +64,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(@NonNull @org.jetbrains.annotations.NotNull NaverMap naverMap) {
+
         mMap = naverMap;
+        mPolygon= new PolygonOverlay();
+        mMarkerArrayLIst = new ArrayList<>();
+        mLatLngList = new ArrayList<>();
+
+        naverMap.setOnMapClickListener((point, coord) -> {
+                    Marker marker = new Marker();
+                    marker.setPosition(new LatLng(coord.latitude, coord.longitude));
+                    marker.setMap(naverMap);
+                    mMarkerArrayLIst.add(marker);
+                    mLatLngList.add(coord);
+                    if (mLatLngList.size() > 2) {
+                        mPolygon.setCoords(mLatLngList);
+                        mPolygon.setMap(naverMap);
+                    }
+                }
+
+
+        );
+
+
+        CameraPosition cameraPosition = new CameraPosition(
+                new LatLng(35.945255, 126.682155), 16
+        );
+        naverMap.setCameraPosition(cameraPosition);
+
+
+
         Marker marker = new Marker();
         marker.setPosition(new LatLng(35.9462369805542, 126.68215506925468));
         marker.setMap(naverMap);
@@ -73,18 +112,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 new LatLng(35.97627792560719, 126.62464725845604)
 
         ));
-
         polygon.setMap(naverMap);
         polygon.setColor(Color.argb(100,255,0,0));
 
 
 
-        mMap.setOnMapClickListener((point, coord) ->
-                Toast.makeText(this, coord.latitude + ", " + coord.longitude,
-                        Toast.LENGTH_SHORT).show());
-
-
         maptype_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position == 0) {
@@ -102,17 +136,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
-        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(35.9462369805542, 126.68215506925468));
-        naverMap.moveCamera(cameraUpdate);
+
 
 
     }
 
     private void initViews() {
         maptype_spinner = findViewById(R.id.maptype_spinner);
+        btnTest = findViewById(R.id.btnTest);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.map_type, R.layout.custom_spinner_item);
         adapter.setDropDownViewResource(R.layout.custom_spinner_item_click);
         maptype_spinner.setAdapter(adapter);
+
+        btnTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (int i = 0; i < mMarkerArrayLIst.size(); i++) {
+                    mMarkerArrayLIst.get(i).setMap(null);
+                }
+                mPolygon.setMap(null);
+                mLatLngList.clear();
+            }
+        });
 
 
     }
