@@ -16,12 +16,14 @@ import android.widget.Toast;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.CameraPosition;
+import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.PolygonOverlay;
 import com.naver.maps.map.overlay.PolylineOverlay;
+import com.naver.maps.map.util.FusedLocationSource;
 
 import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Array;
@@ -30,7 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -42,6 +43,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayList<LatLng> mLatLngList;
 
     Button btnTest;
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
+    private FusedLocationSource locationSource;
+    private NaverMap naverMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +62,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
         initViews();
+
+        locationSource =
+                new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
+
     }
-
-
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,  @NonNull int[] grantResults) {
+        if (locationSource.onRequestPermissionsResult(
+                requestCode, permissions, grantResults)) {
+            if (!locationSource.isActivated()) { // 권한 거부됨
+                naverMap.setLocationTrackingMode(LocationTrackingMode.None);
+            }
+            return;
+        }
+        super.onRequestPermissionsResult(
+                requestCode, permissions, grantResults);
+    }
 
     @Override
     public void onMapReady(@NonNull @org.jetbrains.annotations.NotNull NaverMap naverMap) {
@@ -69,6 +88,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mPolygon= new PolygonOverlay();
         mMarkerArrayLIst = new ArrayList<>();
         mLatLngList = new ArrayList<>();
+
+        this.naverMap = naverMap;
+        naverMap.setLocationSource(locationSource);
+
 
         naverMap.setOnMapClickListener((point, coord) -> {
                     Marker marker = new Marker();
@@ -115,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         polygon.setMap(naverMap);
         polygon.setColor(Color.argb(100,255,0,0));
 
+        naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
 
 
         maptype_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
