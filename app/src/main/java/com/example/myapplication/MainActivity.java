@@ -20,6 +20,7 @@ import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
+import com.naver.maps.map.overlay.InfoWindow;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.PolygonOverlay;
 import com.naver.maps.map.overlay.PolylineOverlay;
@@ -95,9 +96,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         naverMap.setOnMapLongClickListener((point, coord) -> {
+
+            InfoWindow infoWindow = new InfoWindow();
+            infoWindow.setAdapter(new InfoWindow.DefaultTextAdapter(this) {
+                @NonNull
+                @Override
+                public CharSequence getText(@NonNull InfoWindow infoWindow) {
+                    return "정보 창 내용";
+
+                }
+
+            });
+
+
                     Marker marker = new Marker();
                     marker.setPosition(new LatLng(coord.latitude, coord.longitude));
                     marker.setMap(naverMap);
+                    infoWindow.open(marker);
+
                     mMarkerArrayLIst.add(marker);
                     mLatLngList.add(coord);
                     if (mLatLngList.size() > 2) {
