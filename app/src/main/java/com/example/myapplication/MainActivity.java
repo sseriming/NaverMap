@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayList<LatLng> mLatLngList;
 
     Button btnTest;
+    Button btnMove;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private FusedLocationSource locationSource;
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         naverMap.setLocationSource(locationSource);
 
 
-        naverMap.setOnMapClickListener((point, coord) -> {
+        naverMap.setOnMapLongClickListener((point, coord) -> {
                     Marker marker = new Marker();
                     marker.setPosition(new LatLng(coord.latitude, coord.longitude));
                     marker.setMap(naverMap);
@@ -103,10 +104,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mPolygon.setCoords(mLatLngList);
                         mPolygon.setMap(naverMap);
                     }
+
                 }
-
-
         );
+
+
+
 
 
         CameraPosition cameraPosition = new CameraPosition(
@@ -168,9 +171,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void initViews() {
         maptype_spinner = findViewById(R.id.maptype_spinner);
         btnTest = findViewById(R.id.btnTest);
+        btnMove = findViewById(R.id.btnMove);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.map_type, R.layout.custom_spinner_item);
         adapter.setDropDownViewResource(R.layout.custom_spinner_item_click);
         maptype_spinner.setAdapter(adapter);
+
 
         btnTest.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -180,7 +185,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 mPolygon.setMap(null);
                 mLatLngList.clear();
+
             }
+
+        });
+
+        btnMove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CameraPosition cameraPosition = new CameraPosition(
+                        new LatLng(35.945255, 126.682155), 11.7
+                );
+                naverMap.setCameraPosition(cameraPosition);
+
+
+            }
+
         });
 
 
